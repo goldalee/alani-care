@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d4f3c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Alani's Care" />
+  <meta name="description" content="Track Alani's medical appointments with reminders" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Alani's Care</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --forest: #0d4f3c;
+      --forest-mid: #1a6e54;
+      --forest-light: #2a9d72;
+      --mint: #e8f5f0;
+      --mint-deep: #c5e8da;
+      --cream: #faf8f4;
+      --warm: #f5efe6;
+      --text: #1a1a1a;
+      --text-muted: #6b7280;
+      --text-light: #9ca3af;
+      --amber: #f59e0b;
+      --amber-bg: #fffbeb;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
+      --border: rgba(0,0,0,0.08);
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+      --radius: 16px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 430px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--forest);
+      padding: calc(var(--safe-top) + 16px) 20px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      width: 200px; height: 200px;
+      background: var(--forest-mid);
+      border-radius: 50%;
+      top: -60px; right: -40px;
+      opacity: 0.5;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      width: 120px; height: 120px;
+      background: var(--forest-light);
+      border-radius: 50%;
+      bottom: -30px; right: 60px;
+      opacity: 0.3;
+    }
+    .header-inner { position: relative; z-index: 1; }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .baby-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--mint-deep);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--forest);
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    .baby-info .name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .baby-info .age {
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+    }
+    .notif-btn {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      transition: background 0.2s;
+    }
+    .notif-btn:active { background: rgba(255,255,255,0.22); }
+
+    .header-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      color: #fff;
+      margin-bottom: 4px;
+      line-height: 1.1;
+    }
+    .header-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 10px;
+      padding: 16px 20px;
+      background: var(--forest);
+      margin-top: -1px;
+    }
+    .stat-card {
+      flex: 1;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: #fff;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Tab bar ── */
+    .tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .tab {
+      flex: 1;
+      padding: 14px 4px 12px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .tab.active {
+      color: var(--forest);
+      border-bottom-color: var(--forest);
+    }
+    .tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+    /* ── Content ── */
+    .content { padding: 20px; padding-bottom: calc(80px + var(--safe-bottom)); }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-light);
+      margin: 0 0 10px;
+    }
+
+    /* ── Appointment card ── */
+    .appt-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .appt-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--forest-light);
+      border-radius: 4px 0 0 4px;
+    }
+    .appt-card.urgent::before { background: var(--amber); }
+    .appt-card.past::before { background: var(--text-light); opacity: 0.4; }
+    .appt-card:active { transform: scale(0.98); }
+
+    .appt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .specialist {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .doctor {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .days-chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .days-chip.green { background: var(--mint); color: var(--forest); }
+    .days-chip.amber { background: var(--amber-bg); color: #92400e; }
+    .days-chip.red { background: var(--red-bg); color: #991b1b; }
+    .days-chip.gray { background: #f3f4f6; color: var(--text-muted); }
+
+    .appt-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .meta-icon { font-size: 14px; }
+
+    .reminder-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .reminder-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .toggle-switch {
+      width: 36px; height: 20px;
+      background: var(--text-light);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none;
+      flex-shrink: 0;
+    }
+    .toggle-switch.on { background: var(--forest-light); }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px; left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-switch.on::after { transform: translateX(16px); }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed;
+      bottom: calc(20px + var(--safe-bottom));
+      right: 20px;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--forest);
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(13,79,60,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      z-index: 200;
+    }
+    .fab:active { transform: scale(0.92); box-shadow: 0 2px 8px rgba(13,79,60,0.3); }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 300;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--cream);
+      border-radius: 24px 24px 0 0;
+      padding: 20px 20px calc(20px + var(--safe-bottom));
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+    .modal-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: var(--forest);
+    }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--forest-light); }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      background: var(--forest);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+    .btn-primary:active { background: var(--forest-mid); }
+    .btn-cancel {
+      width: 100%;
+      padding: 13px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .empty-text { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── Notification banner ── */
+    .notif-banner {
+      background: var(--mint);
+      border: 1px solid var(--mint-deep);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--forest);
+    }
+    .notif-banner button {
+      margin-left: auto;
+      background: var(--forest);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* ── History card ── */
+    .history-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      opacity: 0.7;
+    }
+    .history-card .specialist { font-size: 14px; }
+    .completed-badge {
+      font-size: 11px;
+      background: var(--mint);
+      color: var(--forest);
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* ── Install banner ── */
+    .install-banner {
+      display: none;
+      position: fixed;
+      bottom: calc(80px + var(--safe-bottom));
+      left: 20px; right: 20px;
+      background: var(--forest);
+      color: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 24px rgba(13,79,60,0.3);
+      z-index: 250;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+    .install-banner.show { display: flex; }
+    .install-banner strong { font-size: 14px; display: block; }
+    .install-btn {
+      margin-left: auto;
+      background: #fff;
+      color: var(--forest);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .install-close {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    /* ── Page visibility ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Detail modal ── */
+    .detail-section { margin-bottom: 18px; }
+    .detail-section h4 {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+    }
+    .detail-value { font-size: 15px; color: var(--text); }
+    .map-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--forest);
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      margin-top: 4px;
+    }
+    .btn-delete {
+      width: 100%;
+      padding: 13px;
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1.5px solid #fecaca;
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* ── Reminders page ── */
+    .reminder-setting {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .reminder-setting-info .r-title { font-size: 14px; font-weight: 500; }
+    .reminder-setting-info .r-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="baby-profile">
+        <div class="avatar">S</div>
+        <div class="baby-info">
+          <div class="name">Alani</div>
+          <div class="age" id="baby-age">Loading...</div>
+        </div>
+      </div>
+      <button class="notif-btn" onclick="requestNotifications()" title="Enable notifications">🔔</button>
+    </div>
+    <div class="header-title">Her appointments</div>
+    <div class="header-subtitle" id="header-subtitle">Managing Alani's care</div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-num" id="stat-upcoming">0</div>
+    <div class="stat-label">Upcoming</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="stat-this-month">0</div>
+    <div class="stat-label">This month</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="stat-total">0</div>
+    <div class="stat-label">Total tracked</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="showPage('upcoming')">
+    <span class="tab-icon">📅</span>Upcoming
+  </button>
+  <button class="tab" onclick="showPage('history')">
+    <span class="tab-icon">📋</span>History
+  </button>
+  <button class="tab" onclick="showPage('reminders')">
+    <span class="tab-icon">🔔</span>Reminders
+  </button>
+</div>
+
+<!-- Upcoming page -->
+<div class="content page active" id="page-upcoming">
+  <div id="notif-banner-wrap"></div>
+  <div id="upcoming-list"></div>
+</div>
+
+<!-- History page -->
+<div class="content page" id="page-history">
+  <div id="history-list"></div>
+</div>
+
+<!-- Reminders page -->
+<div class="content page" id="page-reminders">
+  <p class="section-label">Notify me before each appointment</p>
+
+  <div class="reminder-setting">
+    <div class="reminder-setting-info">
+      <div class="r-title">1 week before</div>
+      <div class="r-desc">Plan ahead reminder</div>
+    </div>
+    <button class="toggle-switch on" id="rem-week" onclick="toggleReminder(this)"></button>
+  </div>
+  <div class="reminder-setting">
+    <div class="reminder-setting-info">
+      <div class="r-title">1 day before</div>
+      <div class="r-desc">Day-ahead reminder</div>
+    </div>
+    <button class="toggle-switch on" id="rem-day" onclick="toggleReminder(this)"></button>
+  </div>
+  <div class="reminder-setting">
+    <div class="reminder-setting-info">
+      <div class="r-title">Morning of appointment</div>
+      <div class="r-desc">Same-day at 8:00 AM</div>
+    </div>
+    <button class="toggle-switch on" id="rem-morning" onclick="toggleReminder(this)"></button>
+  </div>
+  <div class="reminder-setting">
+    <div class="reminder-setting-info">
+      <div class="r-title">2 hours before</div>
+      <div class="r-desc">Time to get ready</div>
+    </div>
+    <button class="toggle-switch" id="rem-2hr" onclick="toggleReminder(this)"></button>
+  </div>
+
+  <br>
+  <p class="section-label">About push notifications</p>
+  <div style="background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border);font-size:13px;color:var(--text-muted);line-height:1.6;">
+    Tap the 🔔 button at the top to enable push notifications. Once enabled, you'll get reminders based on the settings above — even when the app is closed.<br><br>
+    On Android, install this app to your home screen first by tapping <strong>⋮ → Add to Home Screen</strong> in Chrome for the best notification experience.
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddModal()" aria-label="Add appointment">+</button>
+
+<!-- Install banner -->
+<div class="install-banner" id="install-banner">
+  <div>
+    <strong>Install Alani's Care</strong>
+    Add to your home screen for notifications & offline use
+  </div>
+  <button class="install-btn" onclick="installApp()">Install</button>
+  <button class="install-close" onclick="closeInstallBanner()">✕</button>
+</div>
+
+<!-- Add Appointment Modal -->
+<div class="modal-backdrop" id="add-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New appointment</div>
+
+    <div class="form-group">
+      <label class="form-label">Specialist / Appointment type</label>
+      <input class="form-input" id="f-specialist" type="text" placeholder="e.g. Pediatric Audiologist" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Doctor's name</label>
+      <input class="form-input" id="f-doctor" type="text" placeholder="e.g. Dr. Michelle Clarke" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="f-date" type="date" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time</label>
+        <input class="form-input" id="f-time" type="time" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Clinic / Hospital</label>
+      <input class="form-input" id="f-clinic" type="text" placeholder="e.g. Kingston Public Hospital" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address</label>
+      <input class="form-input" id="f-address" type="text" placeholder="Full address for directions" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="f-notes" type="text" placeholder="e.g. Bring vaccination card" />
+    </div>
+
+    <button class="btn-primary" onclick="saveAppointment()">Save appointment</button>
+    <button class="btn-cancel" onclick="closeModal('add-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-backdrop" id="detail-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let appointments = JSON.parse(localStorage.getItem('alani_appts') || '[]');
+let reminderSettings = JSON.parse(localStorage.getItem('alani_reminders') || '{"week":true,"day":true,"morning":true,"2hr":false}');
+let deferredInstallPrompt = null;
+let currentDetailId = null;
+
+// Alani's DOB — stored so age is always accurate
+const SOFIA_DOB = localStorage.getItem('alani_dob') || '2024-09-01';
+
+// ── Helpers ──
+function save() {
+  localStorage.setItem('alani_appts', JSON.stringify(appointments));
+}
+
+function calcAge(dobStr) {
+  const dob = new Date(dobStr);
+  const now = new Date();
+  const months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+  if (months < 12) return months === 1 ? '1 month old' : `${months} months old`;
+  const years = Math.floor(months / 12);
+  const rem = months % 12;
+  if (rem === 0) return years === 1 ? '1 year old' : `${years} years old`;
+  return `${years}y ${rem}m old`;
+}
+
+function daysUntil(dateStr) {
+  const appt = new Date(dateStr + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((appt - today) / 86400000);
+}
+
+function formatDate(dateStr) {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-JM', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+  });
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  const [h, m] = timeStr.split(':');
+  const ampm = +h >= 12 ? 'PM' : 'AM';
+  const hr = +h % 12 || 12;
+  return `${hr}:${m} ${ampm}`;
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+// ── Pages ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const tabs = ['upcoming','history','reminders'];
+  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+  if (name === 'upcoming') renderUpcoming();
+  if (name === 'history') renderHistory();
+}
+
+// ── Render ──
+function renderAll() {
+  document.getElementById('baby-age').textContent = calcAge(SOFIA_DOB);
+  renderUpcoming();
+  updateStats();
+}
+
+function updateStats() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const upcoming = appointments.filter(a => daysUntil(a.date) >= 0);
+  const thisMonth = appointments.filter(a => {
+    const d = new Date(a.date + 'T00:00:00');
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  });
+  document.getElementById('stat-upcoming').textContent = upcoming.length;
+  document.getElementById('stat-this-month').textContent = thisMonth.length;
+  document.getElementById('stat-total').textContent = appointments.length;
+
+  const nextAppt = upcoming.sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+  if (nextAppt) {
+    const d = daysUntil(nextAppt.date);
+    document.getElementById('header-subtitle').textContent =
+      d === 0 ? `${nextAppt.specialist} appointment today!` :
+      d === 1 ? `${nextAppt.specialist} appointment tomorrow` :
+      `Next: ${nextAppt.specialist} in ${d} days`;
+  } else {
+    document.getElementById('header-subtitle').textContent = 'No upcoming appointments';
+  }
+}
+
+function chipClass(days) {
+  if (days < 0) return 'gray';
+  if (days <= 1) return 'red';
+  if (days <= 7) return 'amber';
+  return 'green';
+}
+function chipLabel(days) {
+  if (days < 0) return `${Math.abs(days)}d ago`;
+  if (days === 0) return 'Today!';
+  if (days === 1) return 'Tomorrow';
+  return `In ${days} days`;
+}
+
+function renderUpcoming() {
+  const list = document.getElementById('upcoming-list');
+  const upcoming = appointments
+    .filter(a => daysUntil(a.date) >= 0)
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  // Notification banner
+  const bannerWrap = document.getElementById('notif-banner-wrap');
+  if (Notification.permission === 'default') {
+    bannerWrap.innerHTML = `<div class="notif-banner">
+      <span>🔔</span>
+      <span>Enable reminders so you never miss Alani's appointments</span>
+      <button onclick="requestNotifications()">Enable</button>
+    </div>`;
+  } else { bannerWrap.innerHTML = ''; }
+
+  if (upcoming.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🌿</div>
+      <div class="empty-title">All clear!</div>
+      <div class="empty-text">No upcoming appointments.<br>Tap <strong>+</strong> to add one.</div>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  let shownSoon = false, shownLater = false;
+  upcoming.forEach(a => {
+    const days = daysUntil(a.date);
+    if (!shownSoon && days <= 7) { html += `<p class="section-label">Coming up soon</p>`; shownSoon = true; }
+    if (!shownLater && days > 7) { html += `<p class="section-label" style="margin-top:${shownSoon?'16px':'0'}">Later</p>`; shownLater = true; }
+
+    const chip = `<span class="days-chip ${chipClass(days)}">${chipLabel(days)}</span>`;
+    const tog = a.reminder ? 'on' : '';
+    html += `<div class="appt-card ${days<=3?'urgent':''}" onclick="openDetail('${a.id}')">
+      <div class="appt-header">
+        <div>
+          <div class="specialist">${a.specialist}</div>
+          <div class="doctor">${a.doctor || 'Doctor not specified'}</div>
+        </div>
+        ${chip}
+      </div>
+      <div class="appt-meta">
+        <div class="meta-row"><span class="meta-icon">🗓️</span>${formatDate(a.date)}${a.time ? ' · ' + formatTime(a.time) : ''}</div>
+        ${a.clinic ? `<div class="meta-row"><span class="meta-icon">🏥</span>${a.clinic}</div>` : ''}
+        ${a.address ? `<div class="meta-row"><span class="meta-icon">📍</span>${a.address}</div>` : ''}
+        ${a.notes ? `<div class="meta-row"><span class="meta-icon">📝</span>${a.notes}</div>` : ''}
+      </div>
+      <div class="reminder-toggle" onclick="event.stopPropagation()">
+        <span class="reminder-label">🔔 Reminder</span>
+        <button class="toggle-switch ${tog}" onclick="toggleApptReminder('${a.id}', this)"></button>
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const past = appointments
+    .filter(a => daysUntil(a.date) < 0)
+    .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  if (past.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No history yet</div>
+      <div class="empty-text">Past appointments will appear here automatically.</div>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = `<p class="section-label">Past appointments</p>` + past.map(a => `
+    <div class="history-card" onclick="openDetail('${a.id}')">
+      <div class="appt-header">
+        <div>
+          <div class="specialist">${a.specialist}</div>
+          <div class="doctor">${a.doctor || ''}</div>
+        </div>
+        <span class="completed-badge">✓ Done</span>
+      </div>
+      <div class="appt-meta" style="margin-top:8px">
+        <div class="meta-row"><span class="meta-icon">🗓️</span>${formatDate(a.date)}</div>
+        ${a.clinic ? `<div class="meta-row"><span class="meta-icon">🏥</span>${a.clinic}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+// ── Add appointment ──
+function openAddModal() {
+  // Default date to tomorrow
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  document.getElementById('f-date').value = tomorrow.toISOString().split('T')[0];
+  document.getElementById('f-time').value = '09:00';
+  document.getElementById('f-specialist').value = '';
+  document.getElementById('f-doctor').value = '';
+  document.getElementById('f-clinic').value = '';
+  document.getElementById('f-address').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('add-modal').classList.add('open');
+}
+
+function saveAppointment() {
+  const specialist = document.getElementById('f-specialist').value.trim();
+  const date = document.getElementById('f-date').value;
+  if (!specialist || !date) {
+    alert('Please enter at least the specialist type and date.');
+    return;
+  }
+  const appt = {
+    id: uid(),
+    specialist,
+    doctor: document.getElementById('f-doctor').value.trim(),
+    date,
+    time: document.getElementById('f-time').value,
+    clinic: document.getElementById('f-clinic').value.trim(),
+    address: document.getElementById('f-address').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    reminder: true,
+    createdAt: Date.now()
+  };
+  appointments.push(appt);
+  save();
+  scheduleNotifications(appt);
+  closeModal('add-modal');
+  renderAll();
+}
+
+// ── Detail modal ──
+function openDetail(id) {
+  currentDetailId = id;
+  const a = appointments.find(x => x.id === id);
+  if (!a) return;
+  const days = daysUntil(a.date);
+  const mapQuery = encodeURIComponent((a.address || a.clinic || '') + ' Jamaica');
+  document.getElementById('detail-content').innerHTML = `
+    <div class="modal-title">${a.specialist}</div>
+    <div class="detail-section">
+      <h4>Doctor</h4>
+      <div class="detail-value">${a.doctor || 'Not specified'}</div>
+    </div>
+    <div class="detail-section">
+      <h4>Date & Time</h4>
+      <div class="detail-value">${formatDate(a.date)}${a.time ? ' at ' + formatTime(a.time) : ''}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:4px">${chipLabel(days)}</div>
+    </div>
+    ${a.clinic ? `<div class="detail-section">
+      <h4>Clinic / Hospital</h4>
+      <div class="detail-value">${a.clinic}</div>
+    </div>` : ''}
+    ${a.address ? `<div class="detail-section">
+      <h4>Address</h4>
+      <div class="detail-value">${a.address}</div>
+      <a class="map-link" href="https://maps.google.com/?q=${mapQuery}" target="_blank">📍 Open in Maps →</a>
+    </div>` : ''}
+    ${a.notes ? `<div class="detail-section">
+      <h4>Notes</h4>
+      <div class="detail-value">${a.notes}</div>
+    </div>` : ''}
+    <button class="btn-cancel" onclick="closeModal('detail-modal')" style="margin-top:8px">Close</button>
+    <button class="btn-delete" onclick="deleteAppointment('${a.id}')">🗑 Delete appointment</button>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function deleteAppointment(id) {
+  if (!confirm('Delete this appointment?')) return;
+  appointments = appointments.filter(a => a.id !== id);
+  save();
+  closeModal('detail-modal');
+  renderAll();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close modals on backdrop tap
+document.querySelectorAll('.modal-backdrop').forEach(b => {
+  b.addEventListener('click', e => { if (e.target === b) closeModal(b.id); });
+});
+
+// ── Toggles ──
+function toggleApptReminder(id, btn) {
+  const a = appointments.find(x => x.id === id);
+  if (!a) return;
+  a.reminder = !a.reminder;
+  btn.classList.toggle('on', a.reminder);
+  save();
+}
+
+function toggleReminder(btn) {
+  btn.classList.toggle('on');
+  const key = btn.id.replace('rem-','');
+  reminderSettings[key] = btn.classList.contains('on');
+  localStorage.setItem('alani_reminders', JSON.stringify(reminderSettings));
+}
+
+// ── Notifications ──
+async function requestNotifications() {
+  if (!('Notification' in window)) {
+    alert('Notifications are not supported in this browser. Install the app for full notification support.');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') {
+    new Notification("Alani's Care", {
+      body: "You'll now get reminders for Alani's appointments! 💚",
+      icon: 'icons/icon-192.png'
+    });
+    renderUpcoming();
+    // Schedule for existing appointments
+    appointments.filter(a => a.reminder && daysUntil(a.date) >= 0)
+      .forEach(scheduleNotifications);
+  }
+}
+
+function scheduleNotifications(appt) {
+  // In a real PWA, this uses service worker push notifications via a server
+  // For this demo, we use setTimeout for notifications while the app is open
+  if (Notification.permission !== 'granted' || !appt.reminder) return;
+  const apptDate = new Date(appt.date + 'T' + (appt.time || '09:00') + ':00');
+  const now = Date.now();
+
+  const alerts = [];
+  if (reminderSettings.week)    alerts.push({ offset: 7*24*3600*1000, label: '1 week' });
+  if (reminderSettings.day)     alerts.push({ offset: 24*3600*1000, label: '1 day' });
+  if (reminderSettings.morning) alerts.push({ offset: 0, sameDay: true });
+  if (reminderSettings['2hr'])  alerts.push({ offset: 2*3600*1000, label: '2 hours' });
+
+  alerts.forEach(({ offset, label, sameDay }) => {
+    let triggerTime;
+    if (sameDay) {
+      const morning = new Date(appt.date + 'T08:00:00');
+      triggerTime = morning.getTime();
+    } else {
+      triggerTime = apptDate.getTime() - offset;
+    }
+    const delay = triggerTime - now;
+    if (delay > 0 && delay < 7*24*3600*1000) {
+      setTimeout(() => {
+        if (Notification.permission === 'granted') {
+          new Notification(`Alani — ${appt.specialist}`, {
+            body: sameDay
+              ? `Appointment today${appt.time ? ' at ' + formatTime(appt.time) : ''}! 📍 ${appt.clinic || ''}`
+              : `Appointment ${label ? 'in ' + label : 'coming up'}${appt.time ? ' at ' + formatTime(appt.time) : ''} · ${appt.clinic || ''}`,
+            icon: 'icons/icon-192.png',
+            tag: appt.id + (label || 'morning')
+          });
+        }
+      }, delay);
+    }
+  });
+}
+
+// ── PWA Install ──
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+
+function installApp() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(() => {
+    deferredInstallPrompt = null;
+    closeInstallBanner();
+  });
+}
+
+function closeInstallBanner() {
+  document.getElementById('install-banner').classList.remove('show');
+}
+
+window.addEventListener('appinstalled', () => closeInstallBanner());
+
+// ── Service worker ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ── Sample data for first run ──
+if (appointments.length === 0) {
+  const today = new Date();
+  const d = (offset) => {
+    const dt = new Date(today); dt.setDate(dt.getDate() + offset);
+    return dt.toISOString().split('T')[0];
+  };
+  appointments = [
+    { id: uid(), specialist: 'Pediatric Audiologist', doctor: 'Dr. Michelle Clarke', date: d(3), time: '10:30', clinic: 'Kingston Public Hospital', address: 'North Street, Kingston, Jamaica', notes: 'Bring vaccination card', reminder: true, createdAt: Date.now() },
+    { id: uid(), specialist: 'Paediatrician Checkup', doctor: 'Dr. Osei Brown', date: d(12), time: '14:00', clinic: 'Andrews Memorial Hospital', address: '27 Hope Road, Kingston', notes: '', reminder: true, createdAt: Date.now() },
+    { id: uid(), specialist: 'Ophthalmologist', doctor: 'Dr. Sandra Reid', date: d(21), time: '11:00', clinic: 'Caribbean Eye Institute', address: 'New Kingston, Jamaica', notes: '', reminder: true, createdAt: Date.now() },
+    { id: uid(), specialist: 'Nutritionist', doctor: 'Dr. Karen Williams', date: d(-14), time: '09:00', clinic: 'Medical Associates', address: '18 West Kings House Road', notes: 'Discussed solid food introduction', reminder: false, createdAt: Date.now() },
+  ];
+  save();
+}
+
+renderAll();
+</script>
+</body>
+</html>
